@@ -567,11 +567,11 @@ const (
 	ChannelMapTopRearLeft = C.SF_CHANNEL_MAP_TOP_REAR_LEFT /* Apple and MS call this 'Top Back Left' */
 	ChannelMapTopRearRight = C.SF_CHANNEL_MAP_TOP_REAR_RIGHT /* Apple and MS call this 'Top Back Right' */
 	ChannelMapTopRearCenter = C.SF_CHANNEL_MAP_TOP_REAR_CENTER /* Apple and MS call this 'Top Back Center' */
-	ChannelMapAmbisonicBW = C.SF_CHANNEL_MAP_AMBISONIC_B_W
-	ChannelMapAmbisonicBX = C.SF_CHANNEL_MAP_AMBISONIC_B_X
-	ChannelMapAmbisonicBY = C.SF_CHANNEL_MAP_AMBISONIC_B_Y
-	ChannelMapAmbisonicBZ = C.SF_CHANNEL_MAP_AMBISONIC_B_Z
-	ChannelMapMax = C.SF_CHANNEL_MAP_MAX
+	//ChannelMapAmbisonicBW = C.SF_CHANNEL_MAP_AMBISONIC_B_W
+	//ChannelMapAmbisonicBX = C.SF_CHANNEL_MAP_AMBISONIC_B_X
+	//ChannelMapAmbisonicBY = C.SF_CHANNEL_MAP_AMBISONIC_B_Y
+	//ChannelMapAmbisonicBZ = C.SF_CHANNEL_MAP_AMBISONIC_B_Z
+	//ChannelMapMax = C.SF_CHANNEL_MAP_MAX
 )
 
 // Returns a slice full of integers detailing the position of each channel in the file. err will be non-nil on an actual error
