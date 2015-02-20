@@ -354,8 +354,8 @@ const (
 	Date        StringType = C.SF_STR_DATE
 	Album       StringType = C.SF_STR_ALBUM
 	License     StringType = C.SF_STR_LICENSE
-	Tracknumber StringType = C.SF_STR_TRACKNUMBER
-	Genre       StringType = C.SF_STR_GENRE
+	//Tracknumber StringType = C.SF_STR_TRACKNUMBER
+	//Genre       StringType = C.SF_STR_GENRE
 	First       StringType = C.SF_STR_FIRST
 	Last        StringType = C.SF_STR_LAST
 )
