@@ -391,38 +391,6 @@ func arrFromGoString(arr []C.char, src string) {
 	}
 }
 
-func cFromBroadcast(bi *BroadcastInfo) (c *C.SF_BROADCAST_INFO) {
-	c = new(C.SF_BROADCAST_INFO)
-	arrFromGoString(c.description[:], bi.Description)
-	arrFromGoString(c.originator[:], bi.Originator)
-	arrFromGoString(c.originator_reference[:], bi.Originator_reference)
-	arrFromGoString(c.origination_date[:], bi.Origination_date)
-	arrFromGoString(c.origination_time[:], bi.Origination_time)
-	c.time_reference_low = C.uint(bi.Time_reference_low)
-	c.time_reference_high = C.uint(bi.Time_reference_high)
-	c.version = C.short(bi.Version)
-	arrFromGoString(c.umid[:], bi.Umid)
-	ch := bi.Coding_history
-	if len(bi.Coding_history) > 256 {
-		ch = bi.Coding_history[0:256]
-	}
-	c.coding_history_size = C.uint(len(ch))
-	for i, r := range ch {
-		c.coding_history[i] = C.char(r)
-	}
-	return c
-}
-
-// Set the Broadcast Extension Chunk from WAV (and related) files.
-func (f *File) SetBroadcastInfo(bi *BroadcastInfo) (err error) {
-	c := cFromBroadcast(bi)
-	r := C.sf_command(f.s, C.SFC_SET_BROADCAST_INFO, unsafe.Pointer(c), C.int(unsafe.Sizeof(*c)))
-	if r == C.SF_FALSE {
-		err = errors.New(C.GoString(C.sf_strerror(f.s)))
-	}
-	return
-}
-
 type LoopMode int
 
 const (
@@ -519,9 +487,9 @@ func (f *File) SetInstrument(i *Instrument) bool {
 	var index int
 	for ; index < i.LoopCount; index++ {
 		c.loops[index].mode = C.int(i.Loops[index].Mode)
-		c.loops[index].start = C.uint(i.Loops[index].Start)
-		c.loops[index].end = C.uint(i.Loops[index].End)
-		c.loops[index].count = C.uint(i.Loops[index].Count)
+		c.loops[index].start = C.uint32_t(i.Loops[index].Start)
+		c.loops[index].end = C.uint32_t(i.Loops[index].End)
+		c.loops[index].count = C.uint32_t(i.Loops[index].Count)
 	}
 	for ; index < 16; index++ {
 		c.loops[index].mode = C.int(None)
@@ -544,29 +512,29 @@ func GenericCmd(f *File, cmd C.int, data unsafe.Pointer, datasize int) int {
 }
 
 const (
-	ChannelMapInvalid = C.SF_CHANNEL_MAP_INVALID
-	ChannelMapMono = C.SF_CHANNEL_MAP_MONO
-	ChannelMapLeft = C.SF_CHANNEL_MAP_LEFT /* Apple calls this 'Left' */
-	ChannelMapRight = C.SF_CHANNEL_MAP_RIGHT /* Apple calls this 'Right' */
-	ChannelMapCenter = C.SF_CHANNEL_MAP_CENTER /* Apple calls this 'Center' */
-	ChannelMapFrontLeft = C.SF_CHANNEL_MAP_FRONT_LEFT
-	ChannelMapFrontRight = C.SF_CHANNEL_MAP_FRONT_RIGHT
-	ChannelMapFrontCenter = C.SF_CHANNEL_MAP_FRONT_CENTER
-	ChannelMapRearCenter = C.SF_CHANNEL_MAP_REAR_CENTER /* Apple calls this 'Center Surround' Msft calls this 'Back Center' */
-	ChannelMapRearLeft = C.SF_CHANNEL_MAP_REAR_LEFT /* Apple calls this 'Left Surround' Msft calls this 'Back Left' */
-	ChannelMapRearRight = C.SF_CHANNEL_MAP_REAR_RIGHT /* Apple calls this 'Right Surround' Msft calls this 'Back Right' */
-	ChannelMapLfe = C.SF_CHANNEL_MAP_LFE /* Apple calls this 'LFEScreen' Msft calls this 'Low Frequency'  */
-	ChannelMapFrontLeftOfCenter = C.SF_CHANNEL_MAP_FRONT_LEFT_OF_CENTER /* Apple calls this 'Left Center' */
+	ChannelMapInvalid            = C.SF_CHANNEL_MAP_INVALID
+	ChannelMapMono               = C.SF_CHANNEL_MAP_MONO
+	ChannelMapLeft               = C.SF_CHANNEL_MAP_LEFT   /* Apple calls this 'Left' */
+	ChannelMapRight              = C.SF_CHANNEL_MAP_RIGHT  /* Apple calls this 'Right' */
+	ChannelMapCenter             = C.SF_CHANNEL_MAP_CENTER /* Apple calls this 'Center' */
+	ChannelMapFrontLeft          = C.SF_CHANNEL_MAP_FRONT_LEFT
+	ChannelMapFrontRight         = C.SF_CHANNEL_MAP_FRONT_RIGHT
+	ChannelMapFrontCenter        = C.SF_CHANNEL_MAP_FRONT_CENTER
+	ChannelMapRearCenter         = C.SF_CHANNEL_MAP_REAR_CENTER           /* Apple calls this 'Center Surround' Msft calls this 'Back Center' */
+	ChannelMapRearLeft           = C.SF_CHANNEL_MAP_REAR_LEFT             /* Apple calls this 'Left Surround' Msft calls this 'Back Left' */
+	ChannelMapRearRight          = C.SF_CHANNEL_MAP_REAR_RIGHT            /* Apple calls this 'Right Surround' Msft calls this 'Back Right' */
+	ChannelMapLfe                = C.SF_CHANNEL_MAP_LFE                   /* Apple calls this 'LFEScreen' Msft calls this 'Low Frequency'  */
+	ChannelMapFrontLeftOfCenter  = C.SF_CHANNEL_MAP_FRONT_LEFT_OF_CENTER  /* Apple calls this 'Left Center' */
 	ChannelMapFrontRightOfCenter = C.SF_CHANNEL_MAP_FRONT_RIGHT_OF_CENTER /* Apple calls this 'Right Center */
-	ChannelMapSideLeft = C.SF_CHANNEL_MAP_SIDE_LEFT /* Apple calls this 'Left Surround Direct' */
-	ChannelMapSideRight = C.SF_CHANNEL_MAP_SIDE_RIGHT /* Apple calls this 'Right Surround Direct' */
-	ChannelMapTopCenter = C.SF_CHANNEL_MAP_TOP_CENTER /* Apple calls this 'Top Center Surround' */
-	ChannelMapTopFrontLeft = C.SF_CHANNEL_MAP_TOP_FRONT_LEFT /* Apple calls this 'Vertical Height Left' */
-	ChannelMapTopFrontRight = C.SF_CHANNEL_MAP_TOP_FRONT_RIGHT /* Apple calls this 'Vertical Height Right' */
-	ChannelMapTopFrontCenter = C.SF_CHANNEL_MAP_TOP_FRONT_CENTER /* Apple calls this 'Vertical Height Center' */
-	ChannelMapTopRearLeft = C.SF_CHANNEL_MAP_TOP_REAR_LEFT /* Apple and MS call this 'Top Back Left' */
-	ChannelMapTopRearRight = C.SF_CHANNEL_MAP_TOP_REAR_RIGHT /* Apple and MS call this 'Top Back Right' */
-	ChannelMapTopRearCenter = C.SF_CHANNEL_MAP_TOP_REAR_CENTER /* Apple and MS call this 'Top Back Center' */
+	ChannelMapSideLeft           = C.SF_CHANNEL_MAP_SIDE_LEFT             /* Apple calls this 'Left Surround Direct' */
+	ChannelMapSideRight          = C.SF_CHANNEL_MAP_SIDE_RIGHT            /* Apple calls this 'Right Surround Direct' */
+	ChannelMapTopCenter          = C.SF_CHANNEL_MAP_TOP_CENTER            /* Apple calls this 'Top Center Surround' */
+	ChannelMapTopFrontLeft       = C.SF_CHANNEL_MAP_TOP_FRONT_LEFT        /* Apple calls this 'Vertical Height Left' */
+	ChannelMapTopFrontRight      = C.SF_CHANNEL_MAP_TOP_FRONT_RIGHT       /* Apple calls this 'Vertical Height Right' */
+	ChannelMapTopFrontCenter     = C.SF_CHANNEL_MAP_TOP_FRONT_CENTER      /* Apple calls this 'Vertical Height Center' */
+	ChannelMapTopRearLeft        = C.SF_CHANNEL_MAP_TOP_REAR_LEFT         /* Apple and MS call this 'Top Back Left' */
+	ChannelMapTopRearRight       = C.SF_CHANNEL_MAP_TOP_REAR_RIGHT        /* Apple and MS call this 'Top Back Right' */
+	ChannelMapTopRearCenter      = C.SF_CHANNEL_MAP_TOP_REAR_CENTER       /* Apple and MS call this 'Top Back Center' */
 	//ChannelMapAmbisonicBW = C.SF_CHANNEL_MAP_AMBISONIC_B_W
 	//ChannelMapAmbisonicBX = C.SF_CHANNEL_MAP_AMBISONIC_B_X
 	//ChannelMapAmbisonicBY = C.SF_CHANNEL_MAP_AMBISONIC_B_Y
